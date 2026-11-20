@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Pencil, Trash2, X, Save, FileText, ExternalLink, Eye } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Save, FileText, ExternalLink, Eye, FolderOpen } from "lucide-react";
 import { createPost, updatePost, deletePost } from "@/app/actions/posts";
+import { MediaPickerModal } from "@/components/dashboard/media-picker-modal";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 
@@ -30,6 +31,7 @@ interface User {
 
 export function PostManager({ initialPosts, authors }: { initialPosts: Post[], authors: User[] }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<Post | null>(null);
     const [loading, setLoading] = useState(false);
     const [previewMode, setPreviewMode] = useState(false);
@@ -245,13 +247,23 @@ export function PostManager({ initialPosts, authors }: { initialPosts: Post[], a
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-400 mb-1">Cover Image URL</label>
-                                        <input
-                                            type="text"
-                                            value={formData.coverImage}
-                                            onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                                            className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-brand/50 font-mono text-sm"
-                                            placeholder="https://example.com/image.jpg"
-                                        />
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={formData.coverImage}
+                                                onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
+                                                className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-brand/50 font-mono text-sm"
+                                                placeholder="https://example.com/image.jpg or /uploads/..."
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsMediaPickerOpen(true)}
+                                                className="px-3 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-gray-200 border border-white/10 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap"
+                                            >
+                                                <FolderOpen className="w-4 h-4 text-brand" />
+                                                Media Library
+                                            </button>
+                                        </div>
                                     </div>
 
                                     {/* Content Editor with Preview */}
@@ -324,6 +336,14 @@ export function PostManager({ initialPosts, authors }: { initialPosts: Post[], a
                     </div>
                 )}
             </AnimatePresence>
+
+            {/* Media Picker Modal */}
+            <MediaPickerModal
+                isOpen={isMediaPickerOpen}
+                onClose={() => setIsMediaPickerOpen(false)}
+                onSelect={(url) => setFormData((prev) => ({ ...prev, coverImage: url }))}
+                title="Choose Cover Image"
+            />
         </div>
     );
 }

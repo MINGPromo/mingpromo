@@ -1,30 +1,150 @@
 "use server";
 
-import { writeFile, mkdir } from "fs/promises";
+import { writeFile, mkdir, readdir, stat, unlink } from "fs/promises";
 import { join } from "path";
-import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
+import sharp from "sharp";
 
-export async function uploadImage(formData: FormData) {
+export interface MediaFile {
+    name: string;
+    url: string;
+    size: number;
+    createdAt: string;
+}
+
+const ALLOWED_MIME_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+    "image/svg+xml",
+];
+
+const MAX_FILE_SIZE = 15 * 1024 * 1024; // Diperbesar ke 15MB karena nantinya dikompres otomatis
+
+function getUploadDir(): string {
+    return join(process.cwd(), "public/uploads");
+}
+
+/**
+ * Upload and automatically compress image using sharp
+ */
+export async function uploadImage(formData: FormData): Promise<string> {
     const file = formData.get("file") as File;
+    const customName = (formData.get("customName") as string || "").trim();
 
     if (!file) {
         throw new Error("No file uploaded");
     }
 
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+        throw new Error("Invalid file type. Only JPG, PNG, WEBP, GIF, and SVG are allowed.");
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+        throw new Error("File size exceeds 15MB limit.");
+    }
+
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const rawBuffer = Buffer.from(bytes);
 
-    // Create unique filename
-    const timestamp = Date.now();
-    const filename = `${timestamp}-${file.name.replace(/\s+/g, "-")}`;
-
-    // Ensure uploads directory exists
-    const uploadDir = join(process.cwd(), "public/uploads");
+    const uploadDir = getUploadDir();
     await mkdir(uploadDir, { recursive: true });
 
-    const path = join(uploadDir, filename);
+    const timestamp = Date.now();
+    // Ambil nama dasar tanpa ekstensi, prioritaskan customName jika diisi admin
+    const baseToSanitize = customName || (
+        file.name.substring(0, file.name.lastIndexOf(".")) || file.name
+    );
+    const sanitizedBase = baseToSanitize
+        .toLowerCase()
+        .replace(/[^a-z0-9.-]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, ""); // trim hyphens
 
-    await writeFile(path, buffer);
+    let finalBuffer: Buffer;
+    let filename: string;
 
+    // SVG atau GIF animasi dibiarkan sesuai aslinya
+    if (file.type === "image/svg+xml" || file.type === "image/gif") {
+        const ext = file.name.split(".").pop() || "svg";
+        filename = `${timestamp}-${sanitizedBase || "file"}.${ext}`;
+        finalBuffer = rawBuffer;
+    } else {
+        // Konversi dan kompresi otomatis ke WebP dengan sharp
+        // - Resize max width 1920px (cocok untuk banner/layar besar), aspect ratio tetap
+        // - Kualitas WebP 80% (sangat tajam & hemat memori s.d 70-85%)
+        filename = `${timestamp}-${sanitizedBase || "image"}.webp`;
+        finalBuffer = await sharp(rawBuffer)
+            .resize({
+                width: 1920,
+                withoutEnlargement: true, // Jangan perbesar jika gambar aslinya kecil
+                fit: "inside",
+            })
+            .webp({ quality: 80, effort: 4 })
+            .toBuffer();
+    }
+
+    const filePath = join(uploadDir, filename);
+    await writeFile(filePath, finalBuffer);
+
+    revalidatePath("/dashboard/media");
     return `/uploads/${filename}`;
+}
+
+/**
+ * Get all media files from public/uploads
+ */
+export async function getMediaFiles(): Promise<MediaFile[]> {
+    const uploadDir = getUploadDir();
+
+    try {
+        await mkdir(uploadDir, { recursive: true });
+        const filenames = await readdir(uploadDir);
+
+        const filesData: MediaFile[] = [];
+
+        for (const name of filenames) {
+            // Ignore hidden files / gitkeep
+            if (name.startsWith(".")) continue;
+
+            const filePath = join(uploadDir, name);
+            const fileStat = await stat(filePath);
+
+            if (fileStat.isFile()) {
+                filesData.push({
+                    name,
+                    url: `/uploads/${name}`,
+                    size: fileStat.size,
+                    createdAt: fileStat.birthtime.toISOString(),
+                });
+            }
+        }
+
+        // Sort descending by date (newest first)
+        filesData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+        return filesData;
+    } catch (error) {
+        console.error("Error reading media files:", error);
+        return [];
+    }
+}
+
+/**
+ * Delete a media file by filename
+ */
+export async function deleteMediaFile(filename: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        // Prevent directory traversal
+        const safeName = filename.replace(/^(\.\.[\/\\])+/, "");
+        const filePath = join(getUploadDir(), safeName);
+
+        await unlink(filePath);
+        revalidatePath("/dashboard/media");
+        return { success: true };
+    } catch (error: any) {
+        console.error("Failed to delete file:", error);
+        return { success: false, error: error.message || "Failed to delete file" };
+    }
 }

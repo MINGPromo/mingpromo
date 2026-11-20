@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Video, Save, Upload, X } from "lucide-react";
+import { Video, Save, Upload, X, FolderOpen } from "lucide-react";
 import { updateSetting } from "@/app/actions/settings";
 import { uploadImage } from "@/app/actions/upload";
+import { MediaPickerModal } from "@/components/dashboard/media-picker-modal";
 import Image from "next/image";
 
 interface Setting {
@@ -25,6 +26,7 @@ function ImageUploader({
     placeholder?: string
 }) {
     const [uploading, setUploading] = useState(false);
+    const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,16 +82,24 @@ function ImageUploader({
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploading}
-                            className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors text-sm text-gray-300"
+                            className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors text-sm text-gray-300 disabled:opacity-50"
                         >
                             {uploading ? (
                                 <span className="animate-pulse">Uploading...</span>
                             ) : (
                                 <>
                                     <Upload className="w-4 h-4" />
-                                    {value ? "Change Image" : "Upload Image"}
+                                    {value ? "Upload New" : "Upload Image"}
                                 </>
                             )}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setIsMediaPickerOpen(true)}
+                            className="flex items-center gap-1.5 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-gray-200 border border-white/10 rounded-lg text-sm font-medium transition-colors"
+                        >
+                            <FolderOpen className="w-4 h-4 text-brand" />
+                            Media Library
                         </button>
                     </div>
 
@@ -97,11 +107,18 @@ function ImageUploader({
                         type="text"
                         value={value}
                         onChange={(e) => onChange(e.target.value)}
-                        className="mt-2 w-full bg-black/50 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-gray-500 focus:outline-none focus:border-brand/50"
-                        placeholder="Or enter URL directly..."
+                        className="mt-2 w-full bg-black/50 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-gray-400 focus:outline-none focus:border-brand/50 font-mono"
+                        placeholder="Image URL or choose from library..."
                     />
                 </div>
             </div>
+
+            <MediaPickerModal
+                isOpen={isMediaPickerOpen}
+                onClose={() => setIsMediaPickerOpen(false)}
+                onSelect={(url) => onChange(url)}
+                title={`Select ${label}`}
+            />
         </div>
     );
 }

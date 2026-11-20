@@ -1,0 +1,264 @@
+/* ============================================================
+   MING PROMOTION - CINEMATIC INTRO CURTAIN (SINGLE SOURCE)
+   Shared across pages loading components/intro.js
+   ============================================================ */
+
+#mingIntro {
+  display: none;
+}
+
+html.mi-intro #mingIntro {
+  display: block;
+}
+
+.mi-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(230, 250, 252, 0.95) 0%, #ffffff 75%);
+  background-color: #ffffff;
+  pointer-events: auto;
+}
+
+.mi-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 10002;
+  pointer-events: none;
+}
+
+/* Centered brand logo on load */
+.mi-logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  transform: translate(-50%, -50%) scale(2.6);
+  transform-origin: 50% 50%;
+  animation: miLogoIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mi-logo .brand-logo-mark {
+  display: block;
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 640px) {
+  .mi-logo .brand-logo-mark {
+    height: 28px;
+  }
+}
+
+@keyframes miLogoIn {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translate(-50%, -38%) scale(2.6);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(-50%, -50%) scale(2.6);
+  }
+}
+
+/* Loading progress bar line under the logo */
+.mi-progress {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 54px);
+  width: 140px;
+  height: 3px;
+  margin-left: -70px;
+  border-radius: 999px;
+  background: rgba(0, 178, 190, 0.14);
+  overflow: hidden;
+  animation: miFadeIn 0.6s ease 0.35s both;
+}
+
+.mi-progress i {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--ming-teal), var(--ming-yellow));
+  border-radius: 999px;
+}
+
+@keyframes miFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Pill that widens from the logo out to full navbar size */
+.mi-pill {
+  position: absolute;
+  opacity: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: var(--nav-bg);
+  border: 1.5px solid var(--nav-border);
+  border-radius: 9999px;
+  box-shadow: var(--nav-shadow);
+  backdrop-filter: var(--nav-blur);
+  -webkit-backdrop-filter: var(--nav-blur);
+}
+
+.mi-pill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -40%;
+  width: 40%;
+  background: linear-gradient(100deg, transparent, rgba(0, 178, 190, 0.22), transparent);
+  transform: translateX(0);
+  opacity: 0;
+}
+
+.mi-pill.mi-shine::after {
+  animation: miShine 1s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+@keyframes miShine {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(350%);
+  }
+}
+
+/* Real navbar state during intro */
+html.mi-intro .nav-pill {
+  z-index: 10000 !important;
+  visibility: hidden;
+}
+
+html.mi-intro.mi-header-on .nav-pill {
+  visibility: visible;
+}
+
+html.mi-intro .nav-pill .brand-logo {
+  opacity: 0 !important;
+}
+
+html.mi-intro.mi-header-on .nav-pill .brand-logo {
+  opacity: 1 !important;
+}
+
+/* Menu items: hidden, then staggered in after pill finishes widening */
+html.mi-intro .nav-pill .nav-menu > *,
+html.mi-intro .nav-pill .nav-actions > * {
+  opacity: 0 !important;
+  transform: translateY(-8px) !important;
+}
+
+html.mi-intro.mi-nav-in .nav-pill .nav-menu > *,
+html.mi-intro.mi-nav-in .nav-pill .nav-actions > * {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: opacity 0.5s ease var(--mi-d, 0s), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1) var(--mi-d, 0s) !important;
+}
+
+html.mi-intro .nav-pill .nav-menu > :nth-child(1) {
+  --mi-d: 0s;
+}
+
+html.mi-intro .nav-pill .nav-menu > :nth-child(2) {
+  --mi-d: 0.06s;
+}
+
+html.mi-intro .nav-pill .nav-menu > :nth-child(3) {
+  --mi-d: 0.12s;
+}
+
+html.mi-intro .nav-pill .nav-menu > :nth-child(4) {
+  --mi-d: 0.18s;
+}
+
+html.mi-intro .nav-pill .nav-actions .lang-selector {
+  --mi-d: 0.24s;
+}
+
+html.mi-intro .nav-pill .nav-actions .btn-contact {
+  --mi-d: 0.32s;
+}
+
+html.mi-intro .nav-pill .nav-actions .mobile-toggle {
+  --mi-d: 0.12s;
+}
+
+/* Page assets: hidden until menu animation completes */
+html.mi-intro .hero-3d-visual,
+html.mi-intro .hero-photos-layer,
+html.mi-intro .hero-section .type-row,
+html.mi-intro .hero-section .hero-summary-block,
+html.mi-intro .hero-section .hero-stats-bar {
+  opacity: 0;
+  transform: translateY(32px);
+  filter: blur(6px);
+}
+
+html.mi-intro.mi-reveal .hero-3d-visual,
+html.mi-intro.mi-reveal .hero-photos-layer,
+html.mi-intro.mi-reveal .hero-section .type-row,
+html.mi-intro.mi-reveal .hero-section .hero-summary-block,
+html.mi-intro.mi-reveal .hero-section .hero-stats-bar {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+  transition: opacity 0.8s ease var(--mi-r, 0s), transform 1s cubic-bezier(0.16, 1, 0.3, 1) var(--mi-r, 0s), filter 0.8s ease var(--mi-r, 0s);
+}
+
+html.mi-intro .hero-3d-visual {
+  --mi-r: 0.15s;
+}
+
+html.mi-intro .hero-photos-layer {
+  --mi-r: 0.12s;
+}
+
+html.mi-intro .hero-section .row-inside {
+  --mi-r: 0.18s;
+}
+
+html.mi-intro .hero-section .row-out {
+  --mi-r: 0.30s;
+}
+
+html.mi-intro .hero-section .row-home {
+  --mi-r: 0.42s;
+}
+
+html.mi-intro .hero-section .hero-summary-block {
+  --mi-r: 0.54s;
+}
+
+html.mi-intro .hero-section .hero-stats-bar {
+  --mi-r: 0.64s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #mingIntro {
+    display: none !important;
+  }
+}

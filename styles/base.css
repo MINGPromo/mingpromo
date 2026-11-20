@@ -1,0 +1,239 @@
+/* ============================================================
+   MING PROMOTION - GLOBAL BASE & DESIGN TOKENS
+   Reusable across all pages
+   ============================================================ */
+
+:root {
+  /* Brand Signature Colors */
+  --ming-teal: #00b2be;
+  --ming-teal-dark: #00838c;
+  --ming-teal-hover: #009aa6;
+  --ming-teal-light: #e6f9fa;
+  --ming-teal-shadow: rgba(0, 178, 190, 0.28);
+
+  --ming-yellow: #fccd03;
+  --ming-yellow-hover: #e5b900;
+  --ming-yellow-shadow: rgba(252, 205, 3, 0.45);
+
+  --ming-black: #000000;
+  --ming-charcoal: #111827;
+  --ming-gray-light: #f3f4f6;
+  --ming-white: #ffffff;
+
+  /* Typography */
+  --font-family: 'Plus Jakarta Sans', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Poppins', 'Plus Jakarta Sans', sans-serif;
+
+  /* Header Glass Specs (Single Source of Truth) */
+  --nav-border: rgba(255, 255, 255, 0.75);
+  --nav-bg: rgba(255, 255, 255, 0.25);
+  --nav-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --nav-blur: blur(28px);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* CSS RESET & BASE STYLES */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  min-height: 100%;
+  scroll-behavior: smooth;
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--ming-charcoal);
+  background: #ffffff;
+}
+
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  color: var(--ming-charcoal);
+  background: #ffffff;
+  overflow-x: hidden;
+}
+
+/* Utility Helpers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============================================================
+   REUSABLE FAQ COMPONENT STYLES (Single Source of Truth)
+   Shared across Landing Page & Solution Detail Pages
+   ============================================================ */
+
+.faq-section {
+  width: 100%;
+  padding: clamp(48px, 7vh, 88px) clamp(20px, 4vw, 48px);
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.faq-inner {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.faq-header-center {
+  text-align: center;
+  max-width: 780px;
+  margin-bottom: clamp(24px, 4vh, 44px);
+}
+
+.faq-h2 {
+  font-size: clamp(28px, min(3.2vw, 4.5vh), 42px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #111827;
+  margin: 0 0 12px 0;
+}
+
+.faq-desc {
+  font-size: clamp(14px, 1.05vw, 16px);
+  line-height: 1.6;
+  color: #4b5563;
+  margin: 0;
+}
+
+/* Accordion Container */
+.faq-accordion-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Accordion Item Card */
+.faq-card {
+  width: 100%;
+  background: #f1f5f9;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 18px;
+  padding: clamp(16px, 2.2vh, 22px) clamp(20px, 2.5vw, 30px);
+  box-sizing: border-box;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.faq-card:hover {
+  background: #e2e8f0;
+  border-color: rgba(0, 178, 190, 0.3);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+.faq-card.open {
+  background: #ffffff;
+  border-color: var(--ming-teal, #00b2be);
+  box-shadow: 0 8px 24px rgba(0, 178, 190, 0.12);
+}
+
+.faq-card-header {
+  width: 100%;
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.faq-card-question {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: clamp(16px, min(1.2vw, 2.2vh), 19px);
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.faq-card-question .faq-q-tag {
+  color: var(--ming-teal, #00b2be);
+  font-weight: 900;
+}
+
+/* Plus / Minus Icon */
+.faq-card-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 178, 190, 0.1);
+  color: var(--ming-teal, #00b2be);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  transition: all 0.25s ease;
+}
+
+.faq-card:hover .faq-card-icon {
+  background: var(--ming-teal, #00b2be);
+  color: #ffffff;
+}
+
+.faq-card.open .faq-card-icon {
+  background: var(--ming-yellow, #fccd03);
+  color: #0f172a;
+  transform: rotate(45deg);
+}
+
+/* Card Body with CSS Grid Transition */
+.faq-card-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.faq-card.open .faq-card-body {
+  grid-template-rows: 1fr;
+}
+
+.faq-card-body-inner {
+  overflow: hidden;
+}
+
+.faq-card-answer {
+  font-size: clamp(14px, 1.05vw, 15.5px);
+  line-height: 1.65;
+  color: #475569;
+  margin: 0;
+  padding-top: clamp(12px, 1.8vh, 18px);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  margin-top: clamp(10px, 1.5vh, 14px);
+}
+

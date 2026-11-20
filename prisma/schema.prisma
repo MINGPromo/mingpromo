@@ -68,3 +68,53 @@ model Setting {
   description String?
   updatedAt DateTime @updatedAt
 }
+
+// ==========================================
+// LANDING PAGE MVP MODELS
+// ==========================================
+model LandingHero {
+  id              String   @id @default("default")
+  tagline         String   @default("INSIDE OUT OF HOME")
+  headlineEn      String   @default("Connecting Brands with Audiences Since 1999.")
+  headlineId      String   @default("Menghubungkan Brand dengan Audiens Sejak 1999.")
+  leadEn          String   @default("The consumer journey is never confined to a single location. MING is here to bridge every touchpoint, ensuring your brand remains relevant, visible, and connected every step of the way.")
+  leadId          String   @default("Perjalanan konsumen tidak pernah terbatas pada satu lokasi. MING hadir menjembatani setiap titik temu, memastikan brand Anda tetap relevan, terlihat, dan terhubung di setiap langkah.")
+  updatedAt       DateTime @updatedAt
+}
+
+model SiteMetric {
+  id              String   @id @default(cuid())
+  targetNumber    Int      // 25, 50, 12000, 250
+  suffix          String   // "+", "M"
+  formatComma     Boolean  @default(false)
+  highlightEn     String   // "OOH", "Impressions", "Nationwide", "across Indonesia"
+  labelEn         String   // "Years of OOH experience"
+  highlightId     String   // "OOH", "Impresi", "Nasional", "di seluruh Indonesia"
+  labelId         String   // "Tahun pengalaman OOH"
+  order           Int      @default(0)
+  updatedAt       DateTime @updatedAt
+}
+
+model MarqueeTicker {
+  id              String   @id @default(cuid())
+  productType     String   // "LED Screen", "Digital Totem", dll.
+  locationName    String   // "23 Paskal, Bandung", dll.
+  impressions     String   // "1,107,250 impressions/mo"
+  order           Int      @default(0)
+  isActive        Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+}
+
+model ConnectionLayer {
+  id              String   @id @default(cuid())
+  tabKey          String   @unique // "roadside", "inside", "outside", "ground", "brain"
+  badgeText       String   // "THE ROADSIDE", "THE INSIDE", dll.
+  titleEn         String
+  titleId         String
+  descEn          String
+  descId          String
+  imageUrl        String   // Path gambar billboard
+  order           Int      @default(0)
+  updatedAt       DateTime @updatedAt
+}
+
