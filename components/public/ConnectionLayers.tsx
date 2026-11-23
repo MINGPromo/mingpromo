@@ -12,6 +12,7 @@ export interface LayerItem {
     descEn: string;
     descId: string;
     imageUrl: string;
+    solutionPage?: { slug: string; published: boolean } | null;
 }
 
 const DEFAULT_LAYERS: LayerItem[] = [
@@ -126,18 +127,17 @@ export function ConnectionLayers({ items }: { items?: LayerItem[] }) {
                             const isMatch = (item.tabKey === activeKey || getMatchedKey(activeKey) === item.tabKey);
                             const title = locale === "id" ? item.titleId : item.titleEn;
                             return (
-                                <button
+                                <a
                                     key={idx}
-                                    type="button"
+                                    href={item.solutionPage?.published ? `/solutions/${item.solutionPage.slug}` : "/#contact"}
                                     className={`eco-item-card ${isMatch ? "active is-featured" : ""}`}
                                     onMouseEnter={() => setActiveKey(item.tabKey)}
                                     onFocus={() => setActiveKey(item.tabKey)}
-                                    onClick={() => setActiveKey(item.tabKey)}
-                                    style={{ background: "none", border: "none", textAlign: "left", cursor: "pointer" }}
+                                    style={{ background: "none", border: "none", textAlign: "left", cursor: "pointer", textDecoration: "none" }}
                                 >
                                     <span className="eco-pill-title">{item.badgeText}</span>
                                     <span className="eco-sublabel">{title}</span>
-                                </button>
+                                </a>
                             );
                         })}
                     </div>

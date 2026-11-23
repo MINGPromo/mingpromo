@@ -3,13 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Settings, Layers, Star, Users, LogOut, FileText, UserCog, Image as ImageIcon, Home } from "lucide-react";
+import { LayoutDashboard, Settings, Layers, Star, Users, LogOut, FileText, UserCog, Image as ImageIcon, Home, Compass } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/actions/auth";
 
 const menuItems = [
     { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
     { name: "Landing Page", href: "/dashboard/landing", icon: Home },
+    { name: "Solution Pages", href: "/dashboard/solutions", icon: Compass },
     { name: "Media Library", href: "/dashboard/media", icon: ImageIcon },
     { name: "Services", href: "/dashboard/services", icon: Layers },
     { name: "Testimonials", href: "/dashboard/testimonials", icon: Star },

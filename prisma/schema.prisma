@@ -18,24 +18,24 @@ model User {
 }
 
 model Post {
-  id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  content     String
-  excerpt     String?
-  coverImage  String?
-  published   Boolean  @default(false)
-  authorId    String
-  author      User     @relation(fields: [authorId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  title      String
+  slug       String   @unique
+  content    String
+  excerpt    String?
+  coverImage String?
+  published  Boolean  @default(false)
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Service {
   id          String   @id @default(cuid())
   title       String
   description String
-  icon        String   // Storing icon name for Lucide mapping
+  icon        String // Storing icon name for Lucide mapping
   videoId     String?
   order       Int      @default(0)
   createdAt   DateTime @default(now())
@@ -50,7 +50,7 @@ model Testimonial {
   company   String
   order     Int      @default(0)
   createdAt DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt DateTime @updatedAt
 }
 
 model Client {
@@ -59,62 +59,188 @@ model Client {
   logoUrl   String
   order     Int      @default(0)
   createdAt DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt DateTime @updatedAt
 }
 
 model Setting {
-  key       String   @id
-  value     String
+  key         String   @id
+  value       String
   description String?
-  updatedAt DateTime @updatedAt
+  updatedAt   DateTime @updatedAt
 }
 
 // ==========================================
 // LANDING PAGE MVP MODELS
 // ==========================================
 model LandingHero {
-  id              String   @id @default("default")
-  tagline         String   @default("INSIDE OUT OF HOME")
-  headlineEn      String   @default("Connecting Brands with Audiences Since 1999.")
-  headlineId      String   @default("Menghubungkan Brand dengan Audiens Sejak 1999.")
-  leadEn          String   @default("The consumer journey is never confined to a single location. MING is here to bridge every touchpoint, ensuring your brand remains relevant, visible, and connected every step of the way.")
-  leadId          String   @default("Perjalanan konsumen tidak pernah terbatas pada satu lokasi. MING hadir menjembatani setiap titik temu, memastikan brand Anda tetap relevan, terlihat, dan terhubung di setiap langkah.")
-  updatedAt       DateTime @updatedAt
+  id         String   @id @default("default")
+  tagline    String   @default("INSIDE OUT OF HOME")
+  headlineEn String   @default("Connecting Brands with Audiences Since 1999.")
+  headlineId String   @default("Menghubungkan Brand dengan Audiens Sejak 1999.")
+  leadEn     String   @default("The consumer journey is never confined to a single location. MING is here to bridge every touchpoint, ensuring your brand remains relevant, visible, and connected every step of the way.")
+  leadId     String   @default("Perjalanan konsumen tidak pernah terbatas pada satu lokasi. MING hadir menjembatani setiap titik temu, memastikan brand Anda tetap relevan, terlihat, dan terhubung di setiap langkah.")
+  updatedAt  DateTime @updatedAt
 }
 
 model SiteMetric {
-  id              String   @id @default(cuid())
-  targetNumber    Int      // 25, 50, 12000, 250
-  suffix          String   // "+", "M"
-  formatComma     Boolean  @default(false)
-  highlightEn     String   // "OOH", "Impressions", "Nationwide", "across Indonesia"
-  labelEn         String   // "Years of OOH experience"
-  highlightId     String   // "OOH", "Impresi", "Nasional", "di seluruh Indonesia"
-  labelId         String   // "Tahun pengalaman OOH"
-  order           Int      @default(0)
-  updatedAt       DateTime @updatedAt
+  id           String   @id @default(cuid())
+  targetNumber Int // 25, 50, 12000, 250
+  suffix       String // "+", "M"
+  formatComma  Boolean  @default(false)
+  highlightEn  String // "OOH", "Impressions", "Nationwide", "across Indonesia"
+  labelEn      String // "Years of OOH experience"
+  highlightId  String // "OOH", "Impresi", "Nasional", "di seluruh Indonesia"
+  labelId      String // "Tahun pengalaman OOH"
+  order        Int      @default(0)
+  updatedAt    DateTime @updatedAt
 }
 
 model MarqueeTicker {
-  id              String   @id @default(cuid())
-  productType     String   // "LED Screen", "Digital Totem", dll.
-  locationName    String   // "23 Paskal, Bandung", dll.
-  impressions     String   // "1,107,250 impressions/mo"
-  order           Int      @default(0)
-  isActive        Boolean  @default(true)
-  updatedAt       DateTime @updatedAt
+  id           String   @id @default(cuid())
+  productType  String // "LED Screen", "Digital Totem", dll.
+  locationName String // "23 Paskal, Bandung", dll.
+  impressions  String // "1,107,250 impressions/mo"
+  order        Int      @default(0)
+  isActive     Boolean  @default(true)
+  updatedAt    DateTime @updatedAt
 }
 
 model ConnectionLayer {
-  id              String   @id @default(cuid())
-  tabKey          String   @unique // "roadside", "inside", "outside", "ground", "brain"
-  badgeText       String   // "THE ROADSIDE", "THE INSIDE", dll.
-  titleEn         String
-  titleId         String
-  descEn          String
-  descId          String
-  imageUrl        String   // Path gambar billboard
-  order           Int      @default(0)
-  updatedAt       DateTime @updatedAt
+  id             String        @id @default(cuid())
+  tabKey         String        @unique // "roadside", "inside", "outside", "ground", "brain"
+  badgeText      String // "THE ROADSIDE", "THE INSIDE", dll.
+  titleEn        String
+  titleId        String
+  descEn         String
+  descId         String
+  imageUrl       String // Path gambar billboard
+  order          Int           @default(0)
+  solutionPageId String?       @unique
+  solutionPage   SolutionPage? @relation(fields: [solutionPageId], references: [id], onDelete: SetNull)
+  updatedAt      DateTime      @updatedAt
 }
 
+// ==========================================
+// CMS-DRIVEN SOLUTION CATEGORY PAGES
+// ==========================================
+model SolutionPage {
+  id                    String                @id @default(cuid())
+  slug                  String                @unique
+  badgeText             String
+  navLabelEn            String
+  navLabelId            String
+  heroTitleEn           String
+  heroTitleId           String
+  heroDescriptionEn     String
+  heroDescriptionId     String
+  heroImage             String
+  primaryCtaLabelEn     String                @default("Explore Media")
+  primaryCtaLabelId     String                @default("Jelajahi Media")
+  primaryCtaHref        String                @default("#products")
+  secondaryCtaLabelEn   String                @default("Plan Your Campaign")
+  secondaryCtaLabelId   String                @default("Rencanakan Kampanye")
+  secondaryCtaHref      String                @default("/#contact")
+  introEyebrowEn        String                @default("Introduction")
+  introEyebrowId        String                @default("Pengantar")
+  introTitleEn          String
+  introTitleId          String
+  introBodyEn           String
+  introBodyId           String
+  introImage            String
+  benefitsTitleEn       String
+  benefitsTitleId       String
+  benefitsDescriptionEn String
+  benefitsDescriptionId String
+  productsTitleEn       String
+  productsTitleId       String
+  productsDescriptionEn String
+  productsDescriptionId String
+  faqTitleEn            String                @default("Frequently Asked Questions")
+  faqTitleId            String                @default("Pertanyaan yang Sering Diajukan")
+  ctaTitleEn            String
+  ctaTitleId            String
+  ctaEmphasisEn         String
+  ctaEmphasisId         String
+  ctaDescriptionEn      String
+  ctaDescriptionId      String
+  ctaButtonLabelEn      String                @default("Request a Proposal")
+  ctaButtonLabelId      String                @default("Minta Proposal")
+  ctaButtonHref         String                @default("/#contact")
+  seoTitleEn            String
+  seoTitleId            String
+  seoDescriptionEn      String
+  seoDescriptionId      String
+  published             Boolean               @default(false)
+  order                 Int                   @default(0)
+  benefits              SolutionBenefit[]
+  filters               SolutionFilter[]
+  products              SolutionProduct[]
+  faqCategories         SolutionFaqCategory[]
+  connectionLayer       ConnectionLayer?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+}
+
+model SolutionBenefit {
+  id             String       @id @default(cuid())
+  solutionPageId String
+  solutionPage   SolutionPage @relation(fields: [solutionPageId], references: [id], onDelete: Cascade)
+  titleEn        String
+  titleId        String
+  descriptionEn  String
+  descriptionId  String
+  order          Int          @default(0)
+}
+
+model SolutionFilter {
+  id             String       @id @default(cuid())
+  solutionPageId String
+  solutionPage   SolutionPage @relation(fields: [solutionPageId], references: [id], onDelete: Cascade)
+  key            String
+  labelEn        String
+  labelId        String
+  order          Int          @default(0)
+
+  @@unique([solutionPageId, key])
+}
+
+model SolutionProduct {
+  id             String       @id @default(cuid())
+  solutionPageId String
+  solutionPage   SolutionPage @relation(fields: [solutionPageId], references: [id], onDelete: Cascade)
+  nameEn         String
+  nameId         String
+  imageUrl       String
+  imageAltEn     String
+  imageAltId     String
+  tagLabelEn     String
+  tagLabelId     String
+  filterKeys     String       @default("")
+  href           String       @default("/#contact")
+  order          Int          @default(0)
+  isActive       Boolean      @default(true)
+}
+
+model SolutionFaqCategory {
+  id             String            @id @default(cuid())
+  solutionPageId String
+  solutionPage   SolutionPage      @relation(fields: [solutionPageId], references: [id], onDelete: Cascade)
+  key            String
+  labelEn        String
+  labelId        String
+  order          Int               @default(0)
+  items          SolutionFaqItem[]
+
+  @@unique([solutionPageId, key])
+}
+
+model SolutionFaqItem {
+  id         String              @id @default(cuid())
+  categoryId String
+  category   SolutionFaqCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  questionEn String
+  questionId String
+  answerEn   String
+  answerId   String
+  order      Int                 @default(0)
+}

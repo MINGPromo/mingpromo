@@ -1,12 +1,25 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { useLanguage } from "./LanguageContext";
+import type { SolutionNavLink } from "@/lib/solution-types";
 
-export function SiteFooter() {
+const fallbackSolutions: SolutionNavLink[] = [
+    { slug: "the-inside", badgeText: "THE INSIDE", navLabelEn: "Premium Mall Inventory", navLabelId: "Inventori Mall Premium" },
+    { slug: "the-roadside", badgeText: "THE ROADSIDE", navLabelEn: "Roadside OOH & DOOH", navLabelId: "Roadside OOH & DOOH" },
+    { slug: "the-movement", badgeText: "THE MOVEMENT", navLabelEn: "Mobile Ads", navLabelId: "Iklan Bergerak" },
+    { slug: "the-experience", badgeText: "THE EXPERIENCE", navLabelEn: "Experiential & Activation", navLabelId: "Eksperiensial & Aktivasi" },
+    { slug: "the-brain", badgeText: "THE BRAIN", navLabelEn: "OOH Measurement", navLabelId: "Pengukuran OOH" },
+];
+
+export function SiteFooter({ solutionLinks }: { solutionLinks?: SolutionNavLink[] } = {}) {
     const { t } = useLanguage();
     const [email, setEmail] = useState("");
     const [subscribed, setSubscribed] = useState(false);
+    const links = solutionLinks && solutionLinks.length > 0 ? solutionLinks : fallbackSolutions;
+    const hasPublishedLinks = Boolean(solutionLinks?.length);
 
     const handleSubscribe = (e: React.FormEvent) => {
         e.preventDefault();
@@ -22,15 +35,15 @@ export function SiteFooter() {
                 <div className="footer-columns">
                     {/* Brand Column */}
                     <div className="footer-col-brand">
-                        <a href="#" className="footer-brand-logo" aria-label="MING Media Promotion">
-                            <img
+                        <Link href="/" className="footer-brand-logo" aria-label="MING Media Promotion">
+                            <Image
                                 src="/assets/logos/LOGO%20ONLY%20ALT-01%20(2).png"
                                 alt="MING Media Promotion"
                                 width={1460}
                                 height={420}
                                 className="footer-logo-img"
                             />
-                        </a>
+                        </Link>
                         <p className="footer-address">
                             Komplek Lodan Center Blok E nomor 5, RT.12/RW.5, Ancol, Kec. Pademangan, Jakarta Utara, Daerah Khusus Ibukota Jakarta 14430
                         </p>
@@ -73,41 +86,23 @@ export function SiteFooter() {
                     <div className="footer-col">
                         <h3>{t("OUR SOLUTION", "SOLUSI KAMI")}</h3>
                         <ul>
-                            <li>
-                                <a href="#solutions">
-                                    THE INSIDE <small>Premium Mall Inventory</small>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#solutions">
-                                    THE ROADSIDE <small>Roadside OOH &amp; DOOH</small>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#solutions">
-                                    THE OUTSIDE <small>Mobile Ads</small>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#solutions">
-                                    THE GROUND <small>Experimental &amp; Activation</small>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#solutions">
-                                    THE BRAIN <small>OOH Measurement</small>
-                                </a>
-                            </li>
+                            {links.map((item) => (
+                                <li key={item.slug}>
+                                    <Link href={hasPublishedLinks ? `/solutions/${item.slug}` : "/#solutions"}>
+                                        {item.badgeText} <small>{t(item.navLabelEn, item.navLabelId)}</small>
+                                    </Link>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
                     <div className="footer-col">
                         <h3>{t("RESOURCES", "SUMBER DAYA")}</h3>
                         <ul>
-                            <li><a href="#contact">{t("CONTACT US", "HUBUNGI KAMI")}</a></li>
-                            <li><a href="#faq">{t("FAQ", "TANYA JAWAB")}</a></li>
-                            <li><a href="#about">{t("CAREER", "KARIER")}</a></li>
-                            <li><a href="#solutions">{t("SITEMAP", "PETA SITUS")}</a></li>
+                            <li><Link href="/#contact">{t("CONTACT US", "HUBUNGI KAMI")}</Link></li>
+                            <li><Link href="/#faq">{t("FAQ", "TANYA JAWAB")}</Link></li>
+                            <li><Link href="/#about">{t("CAREER", "KARIER")}</Link></li>
+                            <li><Link href="/#solutions">{t("SITEMAP", "PETA SITUS")}</Link></li>
                         </ul>
                     </div>
 

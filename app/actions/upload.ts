@@ -1,9 +1,10 @@
 "use server";
 
 import { writeFile, mkdir, readdir, stat, unlink } from "fs/promises";
-import { join } from "path";
+import { basename, join, resolve, sep } from "path";
 import { revalidatePath } from "next/cache";
 import sharp from "sharp";
+import { requireDashboardUser } from "@/lib/dashboard-auth";
 
 export interface MediaFile {
     name: string;
@@ -30,6 +31,7 @@ function getUploadDir(): string {
  * Upload and automatically compress image using sharp
  */
 export async function uploadImage(formData: FormData): Promise<string> {
+    await requireDashboardUser();
     const file = formData.get("file") as File;
     const customName = (formData.get("customName") as string || "").trim();
 
@@ -96,6 +98,7 @@ export async function uploadImage(formData: FormData): Promise<string> {
  * Get all media files from public/uploads
  */
 export async function getMediaFiles(): Promise<MediaFile[]> {
+    await requireDashboardUser();
     const uploadDir = getUploadDir();
 
     try {
@@ -135,16 +138,22 @@ export async function getMediaFiles(): Promise<MediaFile[]> {
  * Delete a media file by filename
  */
 export async function deleteMediaFile(filename: string): Promise<{ success: boolean; error?: string }> {
+    await requireDashboardUser();
     try {
-        // Prevent directory traversal
-        const safeName = filename.replace(/^(\.\.[\/\\])+/, "");
-        const filePath = join(getUploadDir(), safeName);
+        const uploadRoot = resolve(getUploadDir());
+        if (!filename || basename(filename) !== filename) {
+            throw new Error("Invalid filename");
+        }
+        const filePath = resolve(uploadRoot, filename);
+        if (!filePath.startsWith(`${uploadRoot}${sep}`)) {
+            throw new Error("Invalid file path");
+        }
 
         await unlink(filePath);
         revalidatePath("/dashboard/media");
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Failed to delete file:", error);
-        return { success: false, error: error.message || "Failed to delete file" };
+        return { success: false, error: error instanceof Error ? error.message : "Failed to delete file" };
     }
 }

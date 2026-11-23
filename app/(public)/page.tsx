@@ -11,14 +11,21 @@ import { ContactCtaSection } from "@/components/public/ContactCtaSection";
 import { FaqSection } from "@/components/public/FaqSection";
 import { SiteFooter } from "@/components/public/SiteFooter";
 import { SectionNavDots } from "@/components/public/SectionNavDots";
+import { getPublishedSolutionLinks } from "@/lib/solutions";
+import type { SolutionNavLink } from "@/lib/solution-types";
+import type { HeroData } from "@/components/public/HeroSection";
+import type { MetricItem } from "@/components/public/HeroStatsBar";
+import type { TickerItem } from "@/components/public/HeroTickerRibbon";
+import type { LayerItem } from "@/components/public/ConnectionLayers";
 
 export const dynamic = "force-dynamic";
 
 export default async function PublicHomePage() {
-    let hero = null;
-    let metrics: any[] = [];
-    let tickers: any[] = [];
-    let layers: any[] = [];
+    let hero: HeroData | null = null;
+    let metrics: MetricItem[] = [];
+    let tickers: TickerItem[] = [];
+    let layers: LayerItem[] = [];
+    let solutionLinks: SolutionNavLink[] = [];
 
     try {
         hero = await prisma.landingHero.findUnique({ where: { id: "default" } });
@@ -44,14 +51,21 @@ export default async function PublicHomePage() {
     try {
         layers = await prisma.connectionLayer.findMany({
             orderBy: { order: "asc" },
+            include: { solutionPage: { select: { slug: true, published: true } } },
         });
     } catch (e) {
         console.error("Failed to load ConnectionLayer:", e);
     }
 
+    try {
+        solutionLinks = await getPublishedSolutionLinks();
+    } catch (e) {
+        console.error("Failed to load SolutionPage navigation:", e);
+    }
+
     return (
         <div className="landing-page-root">
-            <SiteHeader active="home" />
+            <SiteHeader active="home" solutionLinks={solutionLinks} />
 
             {/* Section 1: Hero Section */}
             <HeroSection heroData={hero} metrics={metrics} tickers={tickers} />
@@ -81,7 +95,7 @@ export default async function PublicHomePage() {
                 aria-label="Frequently Asked Questions & Footer"
             >
                 <FaqSection />
-                <SiteFooter />
+                <SiteFooter solutionLinks={solutionLinks} />
             </section>
 
             {/* Side Navigation Dots */}

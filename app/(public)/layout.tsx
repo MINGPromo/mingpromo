@@ -4,6 +4,7 @@ import "@/styles/header.css";
 import "@/styles/footer.css";
 import "@/styles/intro.css";
 import "@/styles/pages/landing-hero.css";
+import "@/styles/pages/solution-page.css";
 import { LanguageProvider } from "@/components/public/LanguageContext";
 
 export default function PublicLayout({

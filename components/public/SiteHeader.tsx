@@ -2,15 +2,29 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useLanguage } from "./LanguageContext";
+import type { SolutionNavLink } from "@/lib/solution-types";
 
-export function SiteHeader({ active = "home" }: { active?: string } = {}) {
+const fallbackSolutions: SolutionNavLink[] = [
+    { slug: "the-inside", badgeText: "THE INSIDE", navLabelEn: "Premium Mall Inventory", navLabelId: "Inventori Mall Premium" },
+    { slug: "the-roadside", badgeText: "THE ROADSIDE", navLabelEn: "Roadside OOH & DOOH", navLabelId: "Roadside OOH & DOOH" },
+    { slug: "the-movement", badgeText: "THE MOVEMENT", navLabelEn: "Mobile Ads", navLabelId: "Iklan Bergerak" },
+    { slug: "the-experience", badgeText: "THE EXPERIENCE", navLabelEn: "Experiential & Activation", navLabelId: "Eksperiensial & Aktivasi" },
+    { slug: "the-brain", badgeText: "THE BRAIN", navLabelEn: "OOH Measurement", navLabelId: "Pengukuran OOH" },
+];
+
+export function SiteHeader({ active = "home", solutionLinks }: { active?: string; solutionLinks?: SolutionNavLink[] } = {}) {
     const { locale, setLocale, t } = useLanguage();
+    const pathname = usePathname();
     const [scrolled, setScrolled] = useState(false);
     const [onDark, setOnDark] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const headerRef = useRef<HTMLElement>(null);
+    const links = solutionLinks && solutionLinks.length > 0 ? solutionLinks : fallbackSolutions;
+    const hasPublishedLinks = Boolean(solutionLinks?.length);
 
     useEffect(() => {
         const darkSelector = '[data-nav-theme="dark"], .solutions-page-wrapper, .milestones-page-wrapper, .testimonial-page-wrapper, .cta-page-wrapper, .site-footer';
@@ -69,18 +83,19 @@ export function SiteHeader({ active = "home" }: { active?: string } = {}) {
                     ref={headerRef}
                     className={`nav-pill ${scrolled ? "scrolled" : ""} ${onDark ? "on-dark" : ""}`}
                     id="siteHeader"
+                    data-active={active}
                     aria-label="Main Navigation"
                 >
                     {/* Brand / Logo */}
-                    <a href="#" className="brand-logo" aria-label="MING Media Promotion">
-                        <img
+                    <Link href="/" className="brand-logo" aria-label="MING Media Promotion">
+                        <Image
                             src="/assets/logos/LOGO%20ONLY%20ALT-01%20(2).png"
                             alt="MING Media Promotion"
                             width={1460}
                             height={420}
                             className="brand-logo-mark"
                         />
-                    </a>
+                    </Link>
 
                     {/* Center Navigation Links */}
                     <ul className="nav-menu">
@@ -89,49 +104,40 @@ export function SiteHeader({ active = "home" }: { active?: string } = {}) {
                             onMouseEnter={() => setDropdownOpen(true)}
                             onMouseLeave={() => setDropdownOpen(false)}
                         >
-                            <a
-                                href="#solutions"
+                            <Link
+                                href="/#solutions"
                                 className="nav-link dropdown-toggle"
                                 onClick={(e) => {
-                                    e.preventDefault();
-                                    const el = document.getElementById("solutions");
-                                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                                    if (pathname === "/") {
+                                        e.preventDefault();
+                                        document.getElementById("solutions")?.scrollIntoView({ behavior: "smooth" });
+                                    }
                                 }}
                             >
                                 <span>{t("Our Solution ▾", "Solusi Kami ▾")}</span>
-                            </a>
+                            </Link>
                             <div className="dropdown-menu">
-                                <a href="#solutions" className="dropdown-item">
-                                    <span>THE INSIDE</span>
-                                </a>
-                                <a href="#solutions" className="dropdown-item">
-                                    <span>THE ROADSIDE</span>
-                                </a>
-                                <a href="#solutions" className="dropdown-item">
-                                    <span>THE OUTSIDE</span>
-                                </a>
-                                <a href="#solutions" className="dropdown-item">
-                                    <span>THE GROUND</span>
-                                </a>
-                                <a href="#solutions" className="dropdown-item">
-                                    <span>THE BRAIN</span>
-                                </a>
+                                {links.map((item) => (
+                                    <Link href={hasPublishedLinks ? `/solutions/${item.slug}` : "/#solutions"} className="dropdown-item" key={item.slug}>
+                                        <span>{item.badgeText}</span>
+                                    </Link>
+                                ))}
                             </div>
                         </li>
                         <li className="nav-item">
-                            <a href="#clients" className="nav-link">
+                            <Link href="/#clients" className="nav-link">
                                 {t("Our Client", "Klien Kami")}
-                            </a>
+                            </Link>
                         </li>
                         <li className="nav-item">
-                            <a href="#insight" className="nav-link">
+                            <Link href="/#insight" className="nav-link">
                                 {t("Insight", "Wawasan")}
-                            </a>
+                            </Link>
                         </li>
                         <li className="nav-item">
-                            <a href="#about" className="nav-link">
+                            <Link href="/#about" className="nav-link">
                                 {t("About", "Tentang Kami")}
-                            </a>
+                            </Link>
                         </li>
                     </ul>
 
@@ -155,9 +161,9 @@ export function SiteHeader({ active = "home" }: { active?: string } = {}) {
                             </span>
                         </div>
 
-                        <a href="#contact" className="btn-contact">
+                        <Link href="/#contact" className="btn-contact">
                             {t("Contact Us!", "Hubungi Kami!")}
-                        </a>
+                        </Link>
 
                         {/* Mobile Hamburger Toggle */}
                         <button
@@ -177,21 +183,21 @@ export function SiteHeader({ active = "home" }: { active?: string } = {}) {
 
             {/* Mobile Drawer Overlay */}
             <div className={`mobile-drawer ${mobileOpen ? "open" : ""}`} id="mobileDrawer">
-                <a href="#" onClick={() => setMobileOpen(false)}>
+                <Link href="/" onClick={() => setMobileOpen(false)}>
                     {t("Home", "Beranda")}
-                </a>
-                <a href="#solutions" onClick={() => setMobileOpen(false)}>
+                </Link>
+                <Link href="/#solutions" onClick={() => setMobileOpen(false)}>
                     {t("Our Solution", "Solusi Kami")}
-                </a>
-                <a href="#clients" onClick={() => setMobileOpen(false)}>
+                </Link>
+                <Link href="/#clients" onClick={() => setMobileOpen(false)}>
                     {t("Our Client", "Klien Kami")}
-                </a>
-                <a href="#insight" onClick={() => setMobileOpen(false)}>
+                </Link>
+                <Link href="/#insight" onClick={() => setMobileOpen(false)}>
                     {t("Insight", "Wawasan")}
-                </a>
-                <a href="#about" onClick={() => setMobileOpen(false)}>
+                </Link>
+                <Link href="/#about" onClick={() => setMobileOpen(false)}>
                     {t("About", "Tentang Kami")}
-                </a>
+                </Link>
                 <div style={{ marginTop: "24px", display: "flex", gap: "16px" }}>
                     <span
                         className={`lang-opt ${locale === "en" ? "active" : ""}`}
