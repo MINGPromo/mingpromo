@@ -12,18 +12,48 @@ interface SolutionRouteProps {
 }
 
 async function getSolution(slug: string) {
-  return prisma.solutionPage.findUnique({
+  const page = await prisma.solutionPage.findUnique({
     where: { slug },
     include: {
       benefits: { orderBy: { order: "asc" } },
       filters: { orderBy: { order: "asc" } },
-      products: { where: { isActive: true }, orderBy: { order: "asc" } },
+      products: {
+        where: { isActive: true }, orderBy: { order: "asc" },
+        include: {
+          gallery: { orderBy: { order: "asc" } },
+          features: { orderBy: { order: "asc" } },
+          locations: { orderBy: { order: "asc" } },
+          caseStudies: { where: { isActive: true }, orderBy: { order: "asc" } },
+          insights: {
+            where: { post: { published: true } },
+            orderBy: { order: "asc" },
+            include: { post: { select: { id: true, title: true, slug: true, excerpt: true, coverImage: true } } },
+          },
+          faqCategories: {
+            orderBy: { order: "asc" },
+            include: { items: { orderBy: { order: "asc" } } },
+          },
+        },
+      },
       faqCategories: {
         orderBy: { order: "asc" },
         include: { items: { orderBy: { order: "asc" } } },
       },
     },
   });
+
+  if (page && page.faqCategories.length === 0) {
+    const globalFaqs = await prisma.faqCategory.findMany({
+      where: { scope: "GLOBAL" },
+      orderBy: { order: "asc" },
+      include: { items: { orderBy: { order: "asc" } } },
+    });
+    if (globalFaqs.length > 0) {
+      page.faqCategories = globalFaqs as unknown as typeof page.faqCategories;
+    }
+  }
+
+  return page;
 }
 
 export async function generateMetadata({ params }: Pick<SolutionRouteProps, "params">): Promise<Metadata> {

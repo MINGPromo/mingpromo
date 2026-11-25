@@ -6,6 +6,10 @@
   --foreground: #ededed;
   --brand: #00b2bd;
   --brand-foreground: #ffffff;
+  --font-geist-sans: "Segoe UI", Arial, Helvetica, sans-serif;
+  --font-geist-mono: "Cascadia Code", Consolas, "Courier New", monospace;
+  --font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+  --font-poppins: "Segoe UI", Arial, Helvetica, sans-serif;
 }
 
 @theme inline {

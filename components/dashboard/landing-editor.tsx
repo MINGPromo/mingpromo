@@ -26,6 +26,7 @@ import { uploadImage } from "@/app/actions/upload";
 interface LandingHeroProps {
     id: string;
     tagline: string;
+    heroImage: string;
     headlineEn: string;
     headlineId: string;
     leadEn: string;
@@ -85,6 +86,7 @@ export function LandingEditor({
         initialHero || {
             id: "default",
             tagline: "INSIDE OUT OF HOME",
+            heroImage: "/assets/media/aset-3d-hero.webp",
             headlineEn: "Connecting Brands with Audiences Since 1999.",
             headlineId: "Menghubungkan Brand dengan Audiens Sejak 1999.",
             leadEn: "The consumer journey is never confined to a single location. MING is here to bridge every touchpoint, ensuring your brand remains relevant, visible, and connected every step of the way.",
@@ -127,6 +129,7 @@ export function LandingEditor({
     const [saving, setSaving] = useState(false);
     const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
     const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+    const [uploadingHeroImage, setUploadingHeroImage] = useState(false);
 
     const handleSaveAll = async (openSite = false) => {
         setSaving(true);
@@ -136,6 +139,7 @@ export function LandingEditor({
             // 1. Update Hero
             const resHero = await updateLandingHero({
                 tagline: hero.tagline,
+                heroImage: hero.heroImage,
                 headlineEn: hero.headlineEn,
                 headlineId: hero.headlineId,
                 leadEn: hero.leadEn,
@@ -225,6 +229,26 @@ export function LandingEditor({
             alert("Gagal mengupload gambar. Pastikan format JPG, PNG, atau WebP.");
         } finally {
             setUploadingIndex(null);
+        }
+    };
+
+    const handleHeroImageUpload = async (file: File) => {
+        if (!file) return;
+        setUploadingHeroImage(true);
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("customName", "landing-hero-visual");
+
+        try {
+            const url = await uploadImage(formData);
+            setHero((current) => ({ ...current, heroImage: url }));
+        } catch (error) {
+            setFeedback({
+                type: "error",
+                message: error instanceof Error ? error.message : "Gagal mengunggah gambar hero.",
+            });
+        } finally {
+            setUploadingHeroImage(false);
         }
     };
 
@@ -332,6 +356,46 @@ export function LandingEditor({
                     </div>
 
                     <div className="space-y-4">
+                        <div className="rounded-xl border border-white/10 bg-black/30 p-4 space-y-3">
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+                                    Visual 3D Hero
+                                </label>
+                                <p className="text-xs text-gray-500">
+                                    Gambar ini tampil di sisi kanan hero landing page dengan komposisi visual yang ada.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row items-start gap-4">
+                                <div className="relative h-24 w-40 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-white">
+                                    <img src={hero.heroImage} alt="Preview visual 3D hero" className="h-full w-full object-contain" />
+                                </div>
+                                <div className="w-full space-y-2">
+                                    <input
+                                        type="text"
+                                        value={hero.heroImage}
+                                        onChange={(e) => setHero({ ...hero, heroImage: e.target.value })}
+                                        placeholder="/uploads/landing-hero-visual.webp atau URL gambar"
+                                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs font-mono focus:border-brand focus:outline-none"
+                                    />
+                                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-white/15">
+                                        <Upload className="h-3.5 w-3.5" />
+                                        <span>{uploadingHeroImage ? "Mengunggah..." : "Upload Visual Hero"}</span>
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+                                            className="hidden"
+                                            disabled={uploadingHeroImage}
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) handleHeroImageUpload(file);
+                                            }}
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div>
                             <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
                                 Display Typography

@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, Settings, Layers, Star, Users, LogOut, FileText, UserCog, Image as ImageIcon, Home, Compass } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LayoutDashboard, Settings, Layers, Star, Users, LogOut, FileText, UserCog, Image as ImageIcon, Home, Compass, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/actions/auth";
 
 const menuItems = [
     { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
     { name: "Landing Page", href: "/dashboard/landing", icon: Home },
+    { name: "Solution Overview", href: "/dashboard/solution-overview", icon: Layers },
     { name: "Solution Pages", href: "/dashboard/solutions", icon: Compass },
+    { name: "FAQ Manager", href: "/dashboard/faq", icon: HelpCircle },
     { name: "Media Library", href: "/dashboard/media", icon: ImageIcon },
     { name: "Services", href: "/dashboard/services", icon: Layers },
     { name: "Testimonials", href: "/dashboard/testimonials", icon: Star },
@@ -22,6 +24,13 @@ const menuItems = [
 
 export function Sidebar() {
     const pathname = usePathname();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await logout();
+        router.replace("/login");
+        router.refresh();
+    };
 
     return (
         <aside className="w-64 bg-zinc-900 border-r border-white/10 h-screen fixed left-0 top-0 flex flex-col z-40">
@@ -60,7 +69,7 @@ export function Sidebar() {
 
             <div className="p-4 border-t border-white/10">
                 <button
-                    onClick={() => logout()}
+                    onClick={handleLogout}
                     className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all"
                 >
                     <LogOut className="w-5 h-5" />

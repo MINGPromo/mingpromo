@@ -1,11 +1,19 @@
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
+import { requireDashboardUser } from "@/lib/dashboard-auth";
+import { redirect } from "next/navigation";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    try {
+        await requireDashboardUser();
+    } catch {
+        redirect("/login");
+    }
+
     return (
         <div className="min-h-screen bg-black text-white selection:bg-brand selection:text-black">
             <Sidebar />

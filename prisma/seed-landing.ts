@@ -12,6 +12,7 @@ async function main() {
         create: {
             id: "default",
             tagline: "INSIDE OUT OF HOME",
+            heroImage: "/assets/media/aset-3d-hero.webp",
             headlineEn: "Connecting Brands with Audiences Since 1999.",
             headlineId: "Menghubungkan Brand dengan Audiens Sejak 1999.",
             leadEn: "The consumer journey is never confined to a single location. MING is here to bridge every touchpoint, ensuring your brand remains relevant, visible, and connected every step of the way.",

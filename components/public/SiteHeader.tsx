@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useLanguage } from "./LanguageContext";
 import type { SolutionNavLink } from "@/lib/solution-types";
 
@@ -17,7 +16,6 @@ const fallbackSolutions: SolutionNavLink[] = [
 
 export function SiteHeader({ active = "home", solutionLinks }: { active?: string; solutionLinks?: SolutionNavLink[] } = {}) {
     const { locale, setLocale, t } = useLanguage();
-    const pathname = usePathname();
     const [scrolled, setScrolled] = useState(false);
     const [onDark, setOnDark] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -105,20 +103,14 @@ export function SiteHeader({ active = "home", solutionLinks }: { active?: string
                             onMouseLeave={() => setDropdownOpen(false)}
                         >
                             <Link
-                                href="/#solutions"
+                                href="/our-solution"
                                 className="nav-link dropdown-toggle"
-                                onClick={(e) => {
-                                    if (pathname === "/") {
-                                        e.preventDefault();
-                                        document.getElementById("solutions")?.scrollIntoView({ behavior: "smooth" });
-                                    }
-                                }}
                             >
                                 <span>{t("Our Solution ▾", "Solusi Kami ▾")}</span>
                             </Link>
                             <div className="dropdown-menu">
                                 {links.map((item) => (
-                                    <Link href={hasPublishedLinks ? `/solutions/${item.slug}` : "/#solutions"} className="dropdown-item" key={item.slug}>
+                                    <Link href={hasPublishedLinks ? `/solutions/${item.slug}` : "/solutions"} className="dropdown-item" key={item.slug}>
                                         <span>{item.badgeText}</span>
                                     </Link>
                                 ))}
@@ -186,7 +178,7 @@ export function SiteHeader({ active = "home", solutionLinks }: { active?: string
                 <Link href="/" onClick={() => setMobileOpen(false)}>
                     {t("Home", "Beranda")}
                 </Link>
-                <Link href="/#solutions" onClick={() => setMobileOpen(false)}>
+                <Link href="/our-solution" onClick={() => setMobileOpen(false)}>
                     {t("Our Solution", "Solusi Kami")}
                 </Link>
                 <Link href="/#clients" onClick={() => setMobileOpen(false)}>

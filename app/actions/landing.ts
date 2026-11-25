@@ -2,8 +2,10 @@
 
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { requireDashboardUser } from "@/lib/dashboard-auth";
 
 export async function getLandingData() {
+    await requireDashboardUser();
     const hero = await prisma.landingHero.findUnique({
         where: { id: "default" },
     });
@@ -25,16 +27,19 @@ export async function getLandingData() {
 
 export async function updateLandingHero(data: {
     tagline?: string;
+    heroImage?: string;
     headlineEn: string;
     headlineId: string;
     leadEn: string;
     leadId: string;
 }) {
+    await requireDashboardUser();
     try {
         const result = await prisma.landingHero.upsert({
             where: { id: "default" },
             update: {
                 tagline: data.tagline || "INSIDE OUT OF HOME",
+                heroImage: data.heroImage?.trim() || "/assets/media/aset-3d-hero.webp",
                 headlineEn: data.headlineEn,
                 headlineId: data.headlineId,
                 leadEn: data.leadEn,
@@ -43,6 +48,7 @@ export async function updateLandingHero(data: {
             create: {
                 id: "default",
                 tagline: data.tagline || "INSIDE OUT OF HOME",
+                heroImage: data.heroImage?.trim() || "/assets/media/aset-3d-hero.webp",
                 headlineEn: data.headlineEn,
                 headlineId: data.headlineId,
                 leadEn: data.leadEn,
@@ -72,6 +78,7 @@ export async function updateSiteMetrics(
         order?: number;
     }>
 ) {
+    await requireDashboardUser();
     try {
         await prisma.siteMetric.deleteMany();
 
@@ -110,6 +117,7 @@ export async function updateMarqueeTickers(
         isActive?: boolean;
     }>
 ) {
+    await requireDashboardUser();
     try {
         await prisma.marqueeTicker.deleteMany();
 
@@ -148,6 +156,7 @@ export async function updateConnectionLayers(
         order?: number;
     }>
 ) {
+    await requireDashboardUser();
     try {
         await prisma.connectionLayer.deleteMany();
 

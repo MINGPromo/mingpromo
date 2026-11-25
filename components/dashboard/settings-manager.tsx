@@ -145,6 +145,8 @@ export function SettingsManager({ initialSettings }: { initialSettings: Setting[
     // Branding
     const [footerLogo, setFooterLogo] = useState(getSetting("footer_logo"));
     const [brandDescription, setBrandDescription] = useState(getSetting("brand_description"));
+    const [footerCareerUrl, setFooterCareerUrl] = useState(getSetting("footer_career_url"));
+    const [footerSitemapUrl, setFooterSitemapUrl] = useState(getSetting("footer_sitemap_url"));
 
     // Hero
     const [heroBackground, setHeroBackground] = useState(getSetting("hero_background"));
@@ -163,6 +165,8 @@ export function SettingsManager({ initialSettings }: { initialSettings: Setting[
                 updateSetting("contact_address", contactAddress),
                 updateSetting("footer_logo", footerLogo),
                 updateSetting("brand_description", brandDescription),
+                updateSetting("footer_career_url", footerCareerUrl),
+                updateSetting("footer_sitemap_url", footerSitemapUrl),
                 updateSetting("hero_background", heroBackground),
             ]);
             alert("All settings saved successfully!");
@@ -292,6 +296,21 @@ export function SettingsManager({ initialSettings }: { initialSettings: Setting[
                             className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-brand/50 min-h-[80px]"
                             placeholder="Jakarta, Indonesia..."
                         />
+                    </div>
+                </div>
+            </div>
+
+            <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 mb-6">
+                <h2 className="text-lg font-bold text-white mb-2">Footer Links</h2>
+                <p className="mb-6 text-sm text-gray-400">Link kosong tidak akan ditampilkan di website publik.</p>
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1">Career URL</label>
+                        <input type="text" value={footerCareerUrl} onChange={(e) => setFooterCareerUrl(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-brand/50" placeholder="https://... atau /career" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1">Sitemap URL</label>
+                        <input type="text" value={footerSitemapUrl} onChange={(e) => setFooterSitemapUrl(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-brand/50" placeholder="https://... atau /sitemap" />
                     </div>
                 </div>
             </div>

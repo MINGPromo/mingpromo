@@ -125,6 +125,34 @@ body {
   object-position: right bottom;
 }
 
+/* Uploaded hero artwork is a full-screen, static background layer.
+   Keep the original positioning rules above for the built-in 3D asset only. */
+.hero-page-wrapper.has-custom-hero-image .hero-3d-visual {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 1;
+  overflow: hidden;
+  mask-image: none;
+  -webkit-mask-image: none;
+  transform: none;
+  transition: none;
+  animation: none;
+  will-change: auto;
+}
+
+.hero-page-wrapper.has-custom-hero-image .hero-3d-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  transform: none;
+  transition: none;
+  animation: none;
+  will-change: auto;
+}
+
 /* ============================================================
    DISPLAY TYPOGRAPHY ("INSIDE OUT OF HOME")
    ============================================================ */
@@ -3505,11 +3533,18 @@ body {
 }
 
 .faq-footer-section .solution-nav-title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   font-size: clamp(11px, min(0.8vw, 1.35vh), 12.5px);
 }
 
 .faq-footer-section .solution-nav-sub {
+  display: block;
   font-size: clamp(9.5px, min(0.7vw, 1.15vh), 10.5px);
+  font-weight: 400;
+  color: #9ca3af;
+  margin-top: 2px;
 }
 
 .faq-footer-section .footer-nav-link {

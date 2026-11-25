@@ -11,6 +11,7 @@ export interface HeroData {
     leadEn?: string | null;
     leadId?: string | null;
     tagline?: string | null;
+    heroImage?: string | null;
 }
 
 interface HeroSectionProps {
@@ -33,13 +34,19 @@ export function HeroSection({ heroData, metrics, tickers }: HeroSectionProps) {
         heroData?.leadId ||
             "Perjalanan konsumen tidak pernah terbatas di satu lokasi. MING hadir menjembatani setiap titik temu, memastikan brand Anda tetap relevan, terlihat, dan terhubung di setiap langkah."
     );
+    const hasCustomHeroImage = Boolean(heroData?.heroImage);
+    const heroImage = heroData?.heroImage || "/assets/media/aset-3d-hero.webp";
 
     return (
-        <section className="snap-section hero-page-wrapper" id="hero" aria-label="Hero Section">
+        <section
+            className={`snap-section hero-page-wrapper${hasCustomHeroImage ? " has-custom-hero-image" : ""}`}
+            id="hero"
+            aria-label="Hero Section"
+        >
             {/* 3D HERO VISUAL */}
             <div className="hero-3d-visual" aria-hidden="true">
                 <img
-                    src="/assets/media/aset-3d-hero.webp"
+                    src={heroImage}
                     alt="MING 3D Visual"
                     className="hero-3d-img"
                     loading="eager"

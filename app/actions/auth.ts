@@ -2,7 +2,6 @@
 
 import { prisma } from "@/lib/db";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 export async function login(formData: FormData) {
     const email = formData.get("email") as string;
@@ -34,11 +33,11 @@ export async function login(formData: FormData) {
         path: "/",
     });
 
-    redirect("/dashboard");
+    return { success: true };
 }
 
 export async function logout() {
     (await cookies()).delete("ming_session");
     (await cookies()).delete("ming_user_email");
-    redirect("/login");
+    return { success: true };
 }

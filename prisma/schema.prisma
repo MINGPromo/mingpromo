@@ -29,6 +29,7 @@ model Post {
   author     User     @relation(fields: [authorId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  solutionInsights SolutionProductInsight[]
 }
 
 model Service {
@@ -75,6 +76,7 @@ model Setting {
 model LandingHero {
   id         String   @id @default("default")
   tagline    String   @default("INSIDE OUT OF HOME")
+  heroImage  String   @default("/assets/media/aset-3d-hero.webp")
   headlineEn String   @default("Connecting Brands with Audiences Since 1999.")
   headlineId String   @default("Menghubungkan Brand dengan Audiens Sejak 1999.")
   leadEn     String   @default("The consumer journey is never confined to a single location. MING is here to bridge every touchpoint, ensuring your brand remains relevant, visible, and connected every step of the way.")
@@ -129,6 +131,8 @@ model SolutionPage {
   badgeText             String
   navLabelEn            String
   navLabelId            String
+  overviewHeadlineEn    String                @default("")
+  overviewHeadlineId    String                @default("")
   heroTitleEn           String
   heroTitleId           String
   heroDescriptionEn     String
@@ -171,11 +175,12 @@ model SolutionPage {
   seoDescriptionEn      String
   seoDescriptionId      String
   published             Boolean               @default(false)
+  templateVariant       String                @default("standard")
   order                 Int                   @default(0)
   benefits              SolutionBenefit[]
   filters               SolutionFilter[]
   products              SolutionProduct[]
-  faqCategories         SolutionFaqCategory[]
+  faqCategories         FaqCategory[]
   connectionLayer       ConnectionLayer?
   createdAt             DateTime              @default(now())
   updatedAt             DateTime              @updatedAt
@@ -219,28 +224,202 @@ model SolutionProduct {
   href           String       @default("/#contact")
   order          Int          @default(0)
   isActive       Boolean      @default(true)
+  slug           String?
+  templateVariant String      @default("standard")
+  detailTitleEn  String?
+  detailTitleId  String?
+  detailDescriptionEn String?
+  detailDescriptionId String?
+  detailBodyEn   String?
+  detailBodyId   String?
+  detailHeroImage String?
+  heroPrimaryCtaLabelEn String?
+  heroPrimaryCtaLabelId String?
+  heroPrimaryCtaHref String?
+  heroSecondaryCtaLabelEn String?
+  heroSecondaryCtaLabelId String?
+  heroSecondaryCtaHref String?
+  valueBarTextEn String?
+  valueBarTextId String?
+  valueBarCtaLabelEn String?
+  valueBarCtaLabelId String?
+  valueBarCtaHref String?
+  showcaseTitleEn String?
+  showcaseTitleId String?
+  showcaseDescriptionEn String?
+  showcaseDescriptionId String?
+  showcaseMediaUrl String?
+  showcaseMediaType String?
+  showcaseMetaTitleEn String?
+  showcaseMetaTitleId String?
+  showcaseMetaDescEn String?
+  showcaseMetaDescId String?
+  worksTitleEn String?
+  worksTitleId String?
+  worksDescriptionEn String?
+  worksDescriptionId String?
+  guidesTitleEn String?
+  guidesTitleId String?
+  guidesDescriptionEn String?
+  guidesDescriptionId String?
+  ctaImage String?
+  ctaBadgeEn String?
+  ctaBadgeId String?
+  ctaTitleEn String?
+  ctaTitleId String?
+  ctaEmphasisEn String?
+  ctaEmphasisId String?
+  ctaDescriptionEn String?
+  ctaDescriptionId String?
+  ctaButtonLabelEn String?
+  ctaButtonLabelId String?
+  ctaButtonHref String?
+  gallery        SolutionProductGallery[]
+  features       SolutionProductFeature[]
+  locations      SolutionProductLocation[]
+  caseStudies    SolutionProductCaseStudy[]
+  insights       SolutionProductInsight[]
+  faqCategories  FaqCategory[]
+
+  @@unique([solutionPageId, slug])
 }
 
-model SolutionFaqCategory {
-  id             String            @id @default(cuid())
-  solutionPageId String
-  solutionPage   SolutionPage      @relation(fields: [solutionPageId], references: [id], onDelete: Cascade)
+model SolutionOverview {
+  id String @id @default("default")
+  heroEyebrowEn String @default("OUR SOLUTION")
+  heroEyebrowId String @default("SOLUSI KAMI")
+  heroTitleEn String @default("OUR SOLUTION")
+  heroTitleId String @default("SOLUSI KAMI")
+  heroDescriptionEn String
+  heroDescriptionId String
+  heroImage String
+  heroPrimaryCtaLabelEn String @default("")
+  heroPrimaryCtaLabelId String @default("")
+  heroPrimaryCtaHref String @default("#ecosystem")
+  heroSecondaryCtaLabelEn String @default("")
+  heroSecondaryCtaLabelId String @default("")
+  heroSecondaryCtaHref String @default("/#contact")
+  heroSupportingLineEn String @default("")
+  heroSupportingLineId String @default("")
+  introEyebrowEn String @default("ECOSYSTEM")
+  introEyebrowId String @default("EKOSISTEM")
+  introTitleEn String
+  introTitleId String
+  introBodyEn String
+  introBodyId String
+  layersEyebrowEn String @default("")
+  layersEyebrowId String @default("")
+  layersTitleEn String @default("")
+  layersTitleId String @default("")
+  layersDescriptionEn String @default("")
+  layersDescriptionId String @default("")
+  ctaTitleEn String
+  ctaTitleId String
+  ctaEmphasisEn String
+  ctaEmphasisId String
+  ctaDescriptionEn String
+  ctaDescriptionId String
+  ctaButtonLabelEn String @default("Request a Proposal")
+  ctaButtonLabelId String @default("Minta Proposal")
+  ctaButtonHref String @default("/#contact")
+  ctaSecondaryButtonLabelEn String @default("")
+  ctaSecondaryButtonLabelId String @default("")
+  ctaSecondaryButtonHref String @default("/#contact")
+  ctaReassuranceEn String @default("")
+  ctaReassuranceId String @default("")
+  seoTitleEn String
+  seoTitleId String
+  seoDescriptionEn String
+  seoDescriptionId String
+  updatedAt DateTime @updatedAt
+}
+
+model SolutionProductGallery {
+  id String @id @default(cuid())
+  productId String
+  product SolutionProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  imageUrl String
+  altEn String
+  altId String
+  order Int @default(0)
+}
+
+model SolutionProductFeature {
+  id String @id @default(cuid())
+  productId String
+  product SolutionProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  key String
+  labelEn String
+  labelId String
+  titleEn String
+  titleId String
+  bodyEn String
+  bodyId String
+  cityTags String @default("")
+  order Int @default(0)
+}
+
+model SolutionProductLocation {
+  id String @id @default(cuid())
+  productId String
+  product SolutionProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  labelEn String
+  labelId String
+  order Int @default(0)
+}
+
+model SolutionProductCaseStudy {
+  id String @id @default(cuid())
+  productId String
+  product SolutionProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  clientName String
+  titleEn String
+  titleId String
+  descriptionEn String
+  descriptionId String
+  imageUrl String
+  href String @default("/#contact")
+  order Int @default(0)
+  isActive Boolean @default(true)
+}
+
+model SolutionProductInsight {
+  id String @id @default(cuid())
+  productId String
+  product SolutionProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  postId String
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  order Int @default(0)
+}
+
+model FaqCategory {
+  id             String           @id @default(cuid())
+  scope          String           @default("GLOBAL") // "GLOBAL" | "SOLUTION" | "PRODUCT"
+  solutionPageId String?
+  solutionPage   SolutionPage?    @relation(fields: [solutionPageId], references: [id], onDelete: Cascade)
+  productId      String?
+  product        SolutionProduct? @relation(fields: [productId], references: [id], onDelete: Cascade)
   key            String
   labelEn        String
   labelId        String
-  order          Int               @default(0)
-  items          SolutionFaqItem[]
+  order          Int              @default(0)
+  items          FaqItem[]
 
-  @@unique([solutionPageId, key])
+  @@index([scope])
+  @@index([solutionPageId])
+  @@index([productId])
 }
 
-model SolutionFaqItem {
-  id         String              @id @default(cuid())
+model FaqItem {
+  id         String      @id @default(cuid())
   categoryId String
-  category   SolutionFaqCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category   FaqCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   questionEn String
   questionId String
   answerEn   String
   answerId   String
-  order      Int                 @default(0)
+  order      Int         @default(0)
+  isActive   Boolean     @default(true)
+
+  @@index([categoryId])
 }

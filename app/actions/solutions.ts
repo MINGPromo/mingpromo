@@ -67,6 +67,8 @@ function scalarPageData(input: SolutionPageInput, slug: string) {
     badgeText: input.badgeText.trim(),
     navLabelEn: input.navLabelEn.trim(),
     navLabelId: input.navLabelId.trim(),
+    overviewHeadlineEn: input.overviewHeadlineEn?.trim() || input.navLabelEn.trim(),
+    overviewHeadlineId: input.overviewHeadlineId?.trim() || input.navLabelId.trim(),
     heroTitleEn: input.heroTitleEn.trim(),
     heroTitleId: input.heroTitleId.trim(),
     heroDescriptionEn: input.heroDescriptionEn.trim(),
@@ -110,6 +112,7 @@ function scalarPageData(input: SolutionPageInput, slug: string) {
     seoDescriptionId: input.seoDescriptionId.trim(),
     published: Boolean(input.published),
     order: Number(input.order) || 0,
+    templateVariant: input.templateVariant === "inventory" || input.templateVariant === "showcase" ? input.templateVariant : "standard",
   };
 }
 
@@ -163,41 +166,120 @@ async function syncProducts(tx: Prisma.TransactionClient, pageId: string, items:
       href: item.href,
       isActive: Boolean(item.isActive),
       order,
+      slug: item.slug?.trim() || null,
+      templateVariant: item.templateVariant?.trim() || "standard",
+      detailTitleEn: item.detailTitleEn?.trim() || null,
+      detailTitleId: item.detailTitleId?.trim() || null,
+      detailDescriptionEn: item.detailDescriptionEn?.trim() || null,
+      detailDescriptionId: item.detailDescriptionId?.trim() || null,
+      detailBodyEn: item.detailBodyEn?.trim() || null,
+      detailBodyId: item.detailBodyId?.trim() || null,
+      detailHeroImage: item.detailHeroImage?.trim() || null,
+      heroPrimaryCtaLabelEn: item.heroPrimaryCtaLabelEn?.trim() || null,
+      heroPrimaryCtaLabelId: item.heroPrimaryCtaLabelId?.trim() || null,
+      heroPrimaryCtaHref: item.heroPrimaryCtaHref?.trim() || null,
+      heroSecondaryCtaLabelEn: item.heroSecondaryCtaLabelEn?.trim() || null,
+      heroSecondaryCtaLabelId: item.heroSecondaryCtaLabelId?.trim() || null,
+      heroSecondaryCtaHref: item.heroSecondaryCtaHref?.trim() || null,
+      valueBarTextEn: item.valueBarTextEn?.trim() || null,
+      valueBarTextId: item.valueBarTextId?.trim() || null,
+      valueBarCtaLabelEn: item.valueBarCtaLabelEn?.trim() || null,
+      valueBarCtaLabelId: item.valueBarCtaLabelId?.trim() || null,
+      valueBarCtaHref: item.valueBarCtaHref?.trim() || null,
+      showcaseTitleEn: item.showcaseTitleEn?.trim() || null,
+      showcaseTitleId: item.showcaseTitleId?.trim() || null,
+      showcaseDescriptionEn: item.showcaseDescriptionEn?.trim() || null,
+      showcaseDescriptionId: item.showcaseDescriptionId?.trim() || null,
+      showcaseMediaUrl: item.showcaseMediaUrl?.trim() || null,
+      showcaseMediaType: item.showcaseMediaType?.trim() || null,
+      showcaseMetaTitleEn: item.showcaseMetaTitleEn?.trim() || null,
+      showcaseMetaTitleId: item.showcaseMetaTitleId?.trim() || null,
+      showcaseMetaDescEn: item.showcaseMetaDescEn?.trim() || null,
+      showcaseMetaDescId: item.showcaseMetaDescId?.trim() || null,
+      worksTitleEn: item.worksTitleEn?.trim() || null,
+      worksTitleId: item.worksTitleId?.trim() || null,
+      worksDescriptionEn: item.worksDescriptionEn?.trim() || null,
+      worksDescriptionId: item.worksDescriptionId?.trim() || null,
+      guidesTitleEn: item.guidesTitleEn?.trim() || null,
+      guidesTitleId: item.guidesTitleId?.trim() || null,
+      guidesDescriptionEn: item.guidesDescriptionEn?.trim() || null,
+      guidesDescriptionId: item.guidesDescriptionId?.trim() || null,
+      ctaImage: item.ctaImage?.trim() || null,
+      ctaBadgeEn: item.ctaBadgeEn?.trim() || null,
+      ctaBadgeId: item.ctaBadgeId?.trim() || null,
+      ctaTitleEn: item.ctaTitleEn?.trim() || null,
+      ctaTitleId: item.ctaTitleId?.trim() || null,
+      ctaEmphasisEn: item.ctaEmphasisEn?.trim() || null,
+      ctaEmphasisId: item.ctaEmphasisId?.trim() || null,
+      ctaDescriptionEn: item.ctaDescriptionEn?.trim() || null,
+      ctaDescriptionId: item.ctaDescriptionId?.trim() || null,
+      ctaButtonLabelEn: item.ctaButtonLabelEn?.trim() || null,
+      ctaButtonLabelId: item.ctaButtonLabelId?.trim() || null,
+      ctaButtonHref: item.ctaButtonHref?.trim() || null,
     };
     const existing = item.id ? await tx.solutionProduct.findFirst({ where: { id: item.id, solutionPageId: pageId }, select: { id: true } }) : null;
-    if (existing) await tx.solutionProduct.update({ where: { id: existing.id }, data });
-    else await tx.solutionProduct.create({ data: { ...data, solutionPageId: pageId } });
+    const product = existing
+      ? await tx.solutionProduct.update({ where: { id: existing.id }, data, select: { id: true } })
+      : await tx.solutionProduct.create({ data: { ...data, solutionPageId: pageId }, select: { id: true } });
+
+    // Child content belongs to the product on the same solution page. Replacing
+    // the ordered collections keeps the editor deterministic and transactional.
+    await tx.solutionProductGallery.deleteMany({ where: { productId: product.id } });
+    await tx.solutionProductFeature.deleteMany({ where: { productId: product.id } });
+    await tx.solutionProductLocation.deleteMany({ where: { productId: product.id } });
+    await tx.solutionProductCaseStudy.deleteMany({ where: { productId: product.id } });
+    await tx.solutionProductInsight.deleteMany({ where: { productId: product.id } });
+    for (const [childOrder, gallery] of (item.gallery ?? []).entries()) {
+      if (!gallery.imageUrl.trim()) continue;
+      await tx.solutionProductGallery.create({ data: { productId: product.id, imageUrl: gallery.imageUrl.trim(), altEn: gallery.altEn.trim(), altId: gallery.altId.trim(), order: childOrder } });
+    }
+    for (const [childOrder, feature] of (item.features ?? []).entries()) {
+      if (!feature.titleEn.trim() && !feature.titleId.trim()) continue;
+      await tx.solutionProductFeature.create({ data: { productId: product.id, key: normalizeFilterKey(feature.key), labelEn: feature.labelEn.trim(), labelId: feature.labelId.trim(), titleEn: feature.titleEn.trim(), titleId: feature.titleId.trim(), bodyEn: feature.bodyEn.trim(), bodyId: feature.bodyId.trim(), cityTags: (feature.cityTags ?? "").trim(), order: childOrder } });
+    }
+    for (const [childOrder, location] of (item.locations ?? []).entries()) {
+      if (!location.labelEn.trim() && !location.labelId.trim()) continue;
+      await tx.solutionProductLocation.create({ data: { productId: product.id, labelEn: location.labelEn.trim(), labelId: location.labelId.trim(), order: childOrder } });
+    }
+    for (const [childOrder, caseStudy] of (item.caseStudies ?? []).entries()) {
+      if (!caseStudy.titleEn.trim() && !caseStudy.titleId.trim()) continue;
+      await tx.solutionProductCaseStudy.create({ data: { productId: product.id, clientName: caseStudy.clientName.trim(), titleEn: caseStudy.titleEn.trim(), titleId: caseStudy.titleId.trim(), descriptionEn: caseStudy.descriptionEn.trim(), descriptionId: caseStudy.descriptionId.trim(), imageUrl: caseStudy.imageUrl.trim(), href: caseStudy.href.trim() || "/#contact", order: childOrder, isActive: Boolean(caseStudy.isActive) } });
+    }
+    for (const [childOrder, insight] of (item.insights ?? []).entries()) {
+      if (!insight.postId) continue;
+      await tx.solutionProductInsight.create({ data: { productId: product.id, postId: insight.postId, order: childOrder } });
+    }
   }
 }
 
 async function syncFaqItems(tx: Prisma.TransactionClient, categoryId: string, items: SolutionFaqItemInput[]) {
   const retained = items.flatMap((item) => (item.id ? [item.id] : []));
-  await tx.solutionFaqItem.deleteMany({
+  await tx.faqItem.deleteMany({
     where: { categoryId, ...(retained.length ? { id: { notIn: retained } } : {}) },
   });
 
   for (let order = 0; order < items.length; order += 1) {
     const item = items[order];
     const data = { questionEn: item.questionEn, questionId: item.questionId, answerEn: item.answerEn, answerId: item.answerId, order };
-    const existing = item.id ? await tx.solutionFaqItem.findFirst({ where: { id: item.id, categoryId }, select: { id: true } }) : null;
-    if (existing) await tx.solutionFaqItem.update({ where: { id: existing.id }, data });
-    else await tx.solutionFaqItem.create({ data: { ...data, categoryId } });
+    const existing = item.id ? await tx.faqItem.findFirst({ where: { id: item.id, categoryId }, select: { id: true } }) : null;
+    if (existing) await tx.faqItem.update({ where: { id: existing.id }, data });
+    else await tx.faqItem.create({ data: { ...data, categoryId } });
   }
 }
 
 async function syncFaqCategories(tx: Prisma.TransactionClient, pageId: string, categories: SolutionFaqCategoryInput[]) {
   const retained = categories.flatMap((item) => (item.id ? [item.id] : []));
-  await tx.solutionFaqCategory.deleteMany({
+  await tx.faqCategory.deleteMany({
     where: { solutionPageId: pageId, ...(retained.length ? { id: { notIn: retained } } : {}) },
   });
 
   for (let order = 0; order < categories.length; order += 1) {
     const item = categories[order];
-    const data = { key: normalizeFilterKey(item.key), labelEn: item.labelEn, labelId: item.labelId, order };
-    const existing = item.id ? await tx.solutionFaqCategory.findFirst({ where: { id: item.id, solutionPageId: pageId }, select: { id: true } }) : null;
+    const data = { key: normalizeFilterKey(item.key), labelEn: item.labelEn, labelId: item.labelId, order, scope: "SOLUTION", solutionPageId: pageId };
+    const existing = item.id ? await tx.faqCategory.findFirst({ where: { id: item.id, solutionPageId: pageId }, select: { id: true } }) : null;
     const category = existing
-      ? await tx.solutionFaqCategory.update({ where: { id: existing.id }, data, select: { id: true } })
-      : await tx.solutionFaqCategory.create({ data: { ...data, solutionPageId: pageId }, select: { id: true } });
+      ? await tx.faqCategory.update({ where: { id: existing.id }, data, select: { id: true } })
+      : await tx.faqCategory.create({ data, select: { id: true } });
     await syncFaqItems(tx, category.id, item.items);
   }
 }
@@ -245,6 +327,8 @@ export async function createSolutionDraft() {
       badgeText: "NEW SOLUTION",
       navLabelEn: "New Solution",
       navLabelId: "Solusi Baru",
+      overviewHeadlineEn: "Describe how this solution connects with audiences",
+      overviewHeadlineId: "Jelaskan cara solusi ini terhubung dengan audiens",
       heroTitleEn: "NEW SOLUTION",
       heroTitleId: "SOLUSI BARU",
       heroDescriptionEn: "Describe the solution and the audience it reaches.",
@@ -285,7 +369,12 @@ export async function duplicateSolutionPage(id: string) {
   await requireDashboardUser();
   const source = await prisma.solutionPage.findUnique({
     where: { id },
-    include: { benefits: true, filters: true, products: true, faqCategories: { include: { items: true } } },
+    include: {
+      benefits: true,
+      filters: true,
+      products: { include: { gallery: true, features: true, locations: true, caseStudies: true, insights: true } },
+      faqCategories: { include: { items: true } },
+    },
   });
   if (!source) return { success: false as const, error: "Solution page tidak ditemukan." };
 
@@ -305,7 +394,19 @@ export async function duplicateSolutionPage(id: string) {
       published: false,
       benefits: { create: source.benefits.map((item) => ({ titleEn: item.titleEn, titleId: item.titleId, descriptionEn: item.descriptionEn, descriptionId: item.descriptionId, order: item.order })) },
       filters: { create: source.filters.map((item) => ({ key: item.key, labelEn: item.labelEn, labelId: item.labelId, order: item.order })) },
-      products: { create: source.products.map((item) => ({ nameEn: item.nameEn, nameId: item.nameId, imageUrl: item.imageUrl, imageAltEn: item.imageAltEn, imageAltId: item.imageAltId, tagLabelEn: item.tagLabelEn, tagLabelId: item.tagLabelId, filterKeys: item.filterKeys, href: item.href, order: item.order, isActive: item.isActive })) },
+      products: { create: source.products.map((item) => ({
+        nameEn: item.nameEn, nameId: item.nameId, imageUrl: item.imageUrl, imageAltEn: item.imageAltEn, imageAltId: item.imageAltId,
+        tagLabelEn: item.tagLabelEn, tagLabelId: item.tagLabelId, filterKeys: item.filterKeys, href: item.href, order: item.order, isActive: item.isActive,
+        slug: item.slug, detailTitleEn: item.detailTitleEn, detailTitleId: item.detailTitleId, detailDescriptionEn: item.detailDescriptionEn,
+        detailDescriptionId: item.detailDescriptionId, detailBodyEn: item.detailBodyEn, detailBodyId: item.detailBodyId, detailHeroImage: item.detailHeroImage,
+        showcaseTitleEn: item.showcaseTitleEn, showcaseTitleId: item.showcaseTitleId, showcaseDescriptionEn: item.showcaseDescriptionEn,
+        showcaseDescriptionId: item.showcaseDescriptionId, showcaseMediaUrl: item.showcaseMediaUrl, showcaseMediaType: item.showcaseMediaType,
+        gallery: { create: item.gallery.map((gallery) => ({ imageUrl: gallery.imageUrl, altEn: gallery.altEn, altId: gallery.altId, order: gallery.order ?? 0 })) },
+        features: { create: item.features.map((feature) => ({ key: feature.key, labelEn: feature.labelEn, labelId: feature.labelId, titleEn: feature.titleEn, titleId: feature.titleId, bodyEn: feature.bodyEn, bodyId: feature.bodyId, order: feature.order ?? 0 })) },
+        locations: { create: item.locations.map((location) => ({ labelEn: location.labelEn, labelId: location.labelId, order: location.order ?? 0 })) },
+        caseStudies: { create: item.caseStudies.map((study) => ({ clientName: study.clientName, titleEn: study.titleEn, titleId: study.titleId, descriptionEn: study.descriptionEn, descriptionId: study.descriptionId, imageUrl: study.imageUrl, href: study.href, order: study.order ?? 0, isActive: study.isActive })) },
+        insights: { create: item.insights.map((insight) => ({ postId: insight.postId, order: insight.order ?? 0 })) },
+      })) },
       faqCategories: {
         create: source.faqCategories.map((category) => ({
           key: category.key,

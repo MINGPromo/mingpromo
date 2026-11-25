@@ -30,7 +30,11 @@ export default function LoginPage() {
             if (result?.error) {
                 setError(result.error);
                 setLoading(false);
+                return;
             }
+
+            router.replace("/dashboard");
+            router.refresh();
         } catch (err) {
             console.error(err);
             setError("Something went wrong");
